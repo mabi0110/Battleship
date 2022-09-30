@@ -7,13 +7,19 @@ public class Field {
     private final char[] FIRST_COLUMN = new char[]{'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
     private final int SIZE = 10;
     private final String[][] GAME_FIELD = new String[SIZE][SIZE];
+    private int aircraftCarrierLength = Ship.AIRCRAFT_CARRIER.getCells();
+    private int battleshipLength = Ship.BATTLESHIP.getCells();
+    private int submarineLength = Ship.SUBMARINE.getCells();
+    private int cruiserLength = Ship.CRUISER.getCells();
+    private int destroyerLength = Ship.DESTROYER.getCells();
+    private int index = 0;
+    private String[] correctShots = new String[index];
 
     Field() {
         createGameField();
     }
 
     public void print() {
-        System.out.println();
         printFirstRow();
         printFirstColumnAndGameField();
     }
@@ -35,7 +41,7 @@ public class Field {
     }
 
     private void printFirstRow() {
-        System.out.print("  ");
+        System.out.print("\n" + "  ");
         for (int i : FIRST_ROW) {
             System.out.print(i + " ");
         }
@@ -50,12 +56,8 @@ public class Field {
                 if (i == index && j == number - 1) {
                     if (Objects.equals(GAME_FIELD[i][j], "O")) {
                         GAME_FIELD[i][j] = "X";
-                        print();
-                        System.out.println("\n" + "You hit a ship!");
                     } else if (Objects.equals(GAME_FIELD[i][j], "~")) {
                         GAME_FIELD[i][j] = "M";
-                        print();
-                        System.out.println("\n" + "You missed!");
                     }
                 }
             }
@@ -108,7 +110,7 @@ public class Field {
         return index;
     }
 
-    public void checkIfCoordinatesAreCorrect(char[] letters, int[] numbers, EnumShip ship)
+    public void checkIfCoordinatesAreCorrect(char[] letters, int[] numbers, Ship ship)
             throws WrongShipLocationException, WrongLengthOfShipException, TooCloseToAnotherOneException {
 
         if (!shipLocationIsOk(letters, numbers)) {
@@ -134,7 +136,7 @@ public class Field {
         }
     }
 
-    private boolean VerticalLengthIsOk(char[] letters, EnumShip ship) {
+    private boolean VerticalLengthIsOk(char[] letters, Ship ship) {
         return ship.getCells() == Math.abs(letters[1] - letters[0]) + 1;
     }
 
@@ -142,7 +144,7 @@ public class Field {
         return letters[0] != letters[1] && numbers[0] == numbers[1];
     }
 
-    private boolean horizontalLengthIsOk(int[] numbers, EnumShip ship) {
+    private boolean horizontalLengthIsOk(int[] numbers, Ship ship) {
         return ship.getCells() == Math.abs(numbers[1] - numbers[0]) + 1;
     }
 
@@ -249,11 +251,185 @@ public class Field {
         return isRowEmpty(numberStart, numberStop, letterIndex - 1);
     }
 
-    public void checkIfShotCoordinatesAreCorrect(char firstCoordinate, int secondCoordinate) throws EnteredWrongCoordinatesException {
+    public void checkIfShotCoordinatesAreCorrect(char firstCoordinate, int secondCoordinate)
+            throws EnteredWrongCoordinatesException {
         if (firstCoordinate < 'A' || firstCoordinate > 'J'
                 || secondCoordinate < 1 || secondCoordinate > 10) {
             throw new EnteredWrongCoordinatesException("\n" +
                     "Error! You entered the wrong coordinates! Try again:");
         }
     }
+
+    private void updateShipsLength(String[][] shipsArray, char letter, int number) {
+        String coordinate = "" + letter + number;
+
+        for (int k = 0; k < shipsArray.length; k++) {
+            for (int l = 0; l < shipsArray[k].length; l++) {
+                if (shipsArray[k][l].equals(coordinate)) {
+                    String sankShipMessage = "\n" + "You sank a ship! Specify a new target: ";
+                    String hitShipMessage = "\n" + "You hit a ship! Try again: ";
+                    switch (k) {
+                        case 0 -> {
+                            if (aircraftCarrierLength > 0) {
+                                aircraftCarrierLength--;
+                            }
+                            checkIfAllShipsAreSank();
+                            if (aircraftCarrierLength == 0) {
+                                System.out.println(sankShipMessage);
+                            }
+                            if (aircraftCarrierLength != 0) {
+                                System.out.println(hitShipMessage);
+                            }
+                        }
+                        case 1 -> {
+                            if (battleshipLength > 0) {
+                                battleshipLength--;
+                            }
+                            checkIfAllShipsAreSank();
+                            if (battleshipLength == 0) {
+                                System.out.println(sankShipMessage);
+                            }
+                            if (battleshipLength != 0) {
+                                System.out.println(hitShipMessage);
+                            }
+                        }
+                        case 2 -> {
+                            if (submarineLength > 0) {
+                                submarineLength--;
+                            }
+                            checkIfAllShipsAreSank();
+                            if (submarineLength == 0) {
+                                System.out.println(sankShipMessage);
+                            }
+                            if (submarineLength != 0) {
+                                System.out.println(hitShipMessage);
+                            }
+                        }
+                        case 3 -> {
+                            if (cruiserLength > 0) {
+                                cruiserLength--;
+                            }
+                            checkIfAllShipsAreSank();
+                            if (cruiserLength == 0) {
+                                System.out.println(sankShipMessage);
+                            }
+                            if (cruiserLength != 0) {
+                                System.out.println(hitShipMessage);
+                            }
+                        }
+                        case 4 -> {
+                            if (destroyerLength > 0) {
+                                destroyerLength--;
+                            }
+                            checkIfAllShipsAreSank();
+                            if (destroyerLength == 0) {
+                                System.out.println(sankShipMessage);
+                            }
+                            if (destroyerLength != 0) {
+                                System.out.println(hitShipMessage);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void checkIfAllShipsAreSank() {
+        if (aircraftCarrierLength == 0 && battleshipLength == 0 && submarineLength == 0
+                && cruiserLength == 0 && destroyerLength == 0){
+            String wonMessage = "\n" + "You sank the last ship. You won. Congratulations! ";
+            System.out.println(wonMessage);
+            System.exit(0);
+        }
+    }
+
+
+    public int placeAShot(Field gameField, char letter, int number, String[][] shipsArray) {
+        int correctShot = 0;
+        int letterIndex = findIndexBasedOnLetter(letter);
+        int numberIndex = number - 1;
+
+        String coordinate = "" + letter + number;
+
+        for (int i = 0; i < GAME_FIELD.length; i++) {
+            for (int j = 0; j < GAME_FIELD[i].length; j++) {
+                if (i == letterIndex && j == numberIndex) {
+
+                    if (gameField.isCellEqual(letterIndex, numberIndex, "X")) {
+                        GAME_FIELD[i][j] = "X";
+                        print();
+                        correctShots = extendArray(correctShots);
+
+                        if (!checkDuplicates(correctShots, coordinate)) {
+                            correctShot = 1;
+                            updateShipsLength(shipsArray, letter, number);
+                            correctShots[index] = coordinate;
+                            index++;
+                        } else {
+                            System.out.println("\n" + "You hit a ship! Try again:");
+                        }
+                    }
+
+                    if (gameField.isCellEqual(letterIndex, numberIndex, "M")) {
+                        GAME_FIELD[i][j] = "M";
+                        print();
+                        System.out.println("\n" + "You missed! Try again: ");
+                    }
+                }
+            }
+        }
+        return correctShot;
+    }
+
+    private String[] extendArray(String[] correctShots) {
+        String[] temp = new String[index + 1];
+        System.arraycopy(correctShots, 0, temp, 0, correctShots.length);
+        return temp;
+    }
+
+
+    private boolean checkDuplicates(String[] correctShots, String coordinate) {
+        boolean isCoordinateInArray = false;
+        for (int k = 0; k < index; k++) {
+            if (correctShots[k].equals(coordinate)) {
+                isCoordinateInArray = true;
+            }
+        }
+        return isCoordinateInArray;
+    }
+
+
+    private boolean isCellEqual(int letterIndex, int numberIndex, String x) {
+        boolean isCellEqual = false;
+        for (int i = 0; i < GAME_FIELD.length; i++) {
+            for (int j = 0; j < GAME_FIELD[i].length; j++) {
+                if (i == letterIndex && j == numberIndex) {
+                    if (Objects.equals(GAME_FIELD[i][j], x)) {
+                        isCellEqual = true;
+                    }
+                }
+            }
+        }
+        return isCellEqual;
+    }
+
+    public String[] createShipArray(char[] letters, int[] numbers, Ship ship) {
+        int numberIndex = Math.min(numbers[0], numbers[1]);
+        int letterIndex = ((char) Math.min(letters[0], letters[1]));
+
+        String[] shipArray = new String[ship.getCells()];
+        if (shipIsHorizontal(letters, numbers)) {
+            for (int i = 0; i < shipArray.length; i++) {
+                shipArray[i] = String.valueOf(letters[0]) + (numberIndex + i);
+            }
+        }
+        if (shipIsVertical(letters, numbers)) {
+            for (int i = 0; i < shipArray.length; i++) {
+                shipArray[i] = (String.valueOf((char) (letterIndex + i))) + numbers[0];
+            }
+        }
+        return shipArray;
+    }
+
 }

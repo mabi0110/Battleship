@@ -1,4 +1,4 @@
-public enum EnumShip {
+public enum Ship {
 
     AIRCRAFT_CARRIER("Aircraft Carrier", 5),
     BATTLESHIP("Battleship", 4),
@@ -10,7 +10,7 @@ public enum EnumShip {
     private final int cells;
 
 
-    EnumShip(String name, int cells) {
+    Ship(String name, int cells) {
         this.name = name;
         this.cells = cells;
     }

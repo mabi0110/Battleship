@@ -5,51 +5,63 @@ public class Main {
     static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        EnumShip[] ships = EnumShip.values();
-        Field field = new Field();
-        takePosition(field, ships);
-        System.out.println("\n" + "The game starts!");
-        theFirstShot(field);
+        Ship[] ships = Ship.values();
+        Field gameField = new Field();
+        Field fogOfWarField = new Field();
+        String[][] shipsArray = new String[5][];
+        int index = 0;
+        takePosition(gameField, ships, shipsArray, index);
+        theFirstShot(gameField, fogOfWarField, shipsArray);
     }
 
-    private static void theFirstShot(Field field) {
-        field.print();
+    private static void theFirstShot(Field gameField, Field fogOfWarField, String[][] shipsArray) {
+        int allShipsLength = 17;
+        System.out.println("\n" + "The game starts!");
+        fogOfWarField.print();
         System.out.println("\n" + "Take a shot!");
 
         char letter;
         int number;
         String coordinates;
 
-        boolean error = true;
-        do {
-            try {
-                System.out.print("\n" + "> ");
-                coordinates = enterCoordinatesForShot();
-                letter = getLetterCoordinate(coordinates);
-                number = getNumberCoordinate(coordinates);
-                field.checkIfShotCoordinatesAreCorrect(letter, number);
-                error = false;
-                field.updateGameField(letter, number);
-            } catch (EnteredWrongCoordinatesException e) {
-                System.out.println(e.getMessage());
-            }
-        } while (error);
+        boolean wrongCoordinatesError = true;
+        while (allShipsLength > 0) {
+            do {
+                try {
+                    System.out.print("\n" + "> ");
+                    coordinates = enterCoordinatesForShot();
+                    letter = getLetterCoordinate(coordinates);
+                    number = getNumberCoordinate(coordinates);
+                    gameField.checkIfShotCoordinatesAreCorrect(letter, number);
+                    wrongCoordinatesError = false;
+                    gameField.updateGameField(letter, number);
+                    int correctShot = fogOfWarField.placeAShot(gameField, letter, number, shipsArray);
+                    if (correctShot == 1){
+                        allShipsLength--;
+                    }
+                } catch (EnteredWrongCoordinatesException e) {
+                    System.out.println(e.getMessage());
+                }
+            } while (wrongCoordinatesError);
+        }
     }
-    private static void takePosition(Field field, EnumShip[] ships) {
-        field.print();
+
+    private static void takePosition(Field gameField, Ship[] ships, String[][] shipsArray, int index) {
+        gameField.print();
         char letter1, letter2;
         int number1, number2;
         String coordinates1, coordinates2;
         char[] letters = new char[2];
         int[] numbers = new int[2];
 
-        for (EnumShip ship : ships) {
+        for (Ship ship : ships) {
             System.out.println("\n" + "Enter the coordinates of the " + ship.getName() + " (" + ship.getCells() + " cells):");
 
             boolean error = true;
             do {
                 System.out.print("\n" + "> ");
                 String[] coordinates = enterCoordinatesForShip();
+
                 coordinates1 = coordinates[0];
                 coordinates2 = coordinates[1];
 
@@ -65,15 +77,18 @@ public class Main {
                 numbers[1] = number2;
 
                 try {
-                    field.checkIfCoordinatesAreCorrect(letters, numbers, ship);
+                    gameField.checkIfCoordinatesAreCorrect(letters, numbers, ship);
+                    String[] shipArray = gameField.createShipArray(letters, numbers, ship);
+                    shipsArray[index] = shipArray;
+                    index++;
                     error = false;
                 } catch (WrongShipLocationException | WrongLengthOfShipException | TooCloseToAnotherOneException e){
                     System.out.println(e.getMessage());
                 }
             } while (error);
 
-            field.placeAShip(letters, numbers);
-            field.print();
+            gameField.placeAShip(letters, numbers);
+            gameField.print();
         }
     }
 
@@ -87,12 +102,15 @@ public class Main {
         }
         return numberCoordinate;
     }
+
     private static char getLetterCoordinate(String coordinates) {
         return coordinates.charAt(0);
     }
+
     private static String enterCoordinatesForShot() {
         return scanner.next();
     }
+
     private static String[] enterCoordinatesForShip() {
         String[] coordinates = new String[2];
         coordinates[0] = scanner.next();
