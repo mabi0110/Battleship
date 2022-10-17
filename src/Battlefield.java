@@ -1,3 +1,4 @@
+import java.util.Objects;
 import java.util.Scanner;
 
 
@@ -5,13 +6,39 @@ public class Main {
     static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
+
         Ship[] ships = Ship.values();
-        Field gameField = new Field();
-        Field fogOfWarField = new Field();
-        String[][] shipsArray = new String[5][];
-        int index = 0;
-        takePosition(gameField, ships, shipsArray, index);
-        theFirstShot(gameField, fogOfWarField, shipsArray);
+
+
+        Player[] players = {new Player("Player 1"), new Player("Player 2")};
+        Field gameField1 = new Field();
+        System.out.println(players[0].getName() + ", place your ships on the game field");
+        Field fogOfWarField1 = new Field();
+        String[][] shipsArray1 = new String[5][];
+        int index1 = 0;
+        takePosition(gameField1, ships, shipsArray1, index1);
+
+        pressEnterToSwitchThePlayer();
+
+//        Field gameField2 = new Field();
+//        System.out.println(players[1].getName() + ", place your ships on the game field");
+//        Field fogOfWarField2 = new Field();
+//        String[][] shipsArray2 = new String[5][];
+//        int index = 0;
+//        takePosition(gameField2, ships, shipsArray2, index);
+
+
+//        theFirstShot(gameField1, fogOfWarField1, shipsArray1);
+//        theFirstShot(gameField2, fogOfWarField2, shipsArray2);
+
+
+//        Ship[] ships = Ship.values();
+//        Field gameField = new Field();
+//        Field fogOfWarField = new Field();
+//        String[][] shipsArray = new String[5][];
+//        int index = 0;
+//        takePosition(gameField, ships, shipsArray, index);
+//        theFirstShot(gameField, fogOfWarField, shipsArray);
     }
 
     private static void theFirstShot(Field gameField, Field fogOfWarField, String[][] shipsArray) {
@@ -36,7 +63,7 @@ public class Main {
                     wrongCoordinatesError = false;
                     gameField.updateGameField(letter, number);
                     int correctShot = fogOfWarField.placeAShot(gameField, letter, number, shipsArray);
-                    if (correctShot == 1){
+                    if (correctShot == 1) {
                         allShipsLength--;
                     }
                 } catch (EnteredWrongCoordinatesException e) {
@@ -82,7 +109,7 @@ public class Main {
                     shipsArray[index] = shipArray;
                     index++;
                     error = false;
-                } catch (WrongShipLocationException | WrongLengthOfShipException | TooCloseToAnotherOneException e){
+                } catch (WrongShipLocationException | WrongLengthOfShipException | TooCloseToAnotherOneException e) {
                     System.out.println(e.getMessage());
                 }
             } while (error);
@@ -116,6 +143,11 @@ public class Main {
         coordinates[0] = scanner.next();
         coordinates[1] = scanner.next();
         return coordinates;
+    }
+
+    private static void pressEnterToSwitchThePlayer() {
+        System.out.println("\nPress Enter and pass the move to another player");
+        scanner.nextLine();
     }
 }
 
