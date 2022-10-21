@@ -9,7 +9,6 @@ public enum Ship {
     private final String name;
     private final int cells;
 
-
     Ship(String name, int cells) {
         this.name = name;
         this.cells = cells;

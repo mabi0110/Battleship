@@ -1,2 +1,8 @@
-package PACKAGE_NAME;public class Player {
+public class Player {
+    public String name;
+    public Battlefield battlefield;
+    public Player(String name) {
+        this.battlefield = new Battlefield();
+        this.name = name;
+    }
 }

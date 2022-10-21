@@ -1,3 +1,8 @@
+import exceptions.EnteredWrongCoordinatesException;
+import exceptions.TooCloseToAnotherOneException;
+import exceptions.WrongLengthOfShipException;
+import exceptions.WrongShipLocationException;
+
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -7,11 +12,20 @@ public class Field {
     private final char[] FIRST_COLUMN = new char[]{'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
     private final int SIZE = 10;
     private final String[][] GAME_FIELD = new String[SIZE][SIZE];
-    private int aircraftCarrierLength = Ship.AIRCRAFT_CARRIER.getCells();
-    private int battleshipLength = Ship.BATTLESHIP.getCells();
-    private int submarineLength = Ship.SUBMARINE.getCells();
-    private int cruiserLength = Ship.CRUISER.getCells();
-    private int destroyerLength = Ship.DESTROYER.getCells();
+    private int[] shipsLength = {
+            Ship.AIRCRAFT_CARRIER.getCells(),
+            Ship.BATTLESHIP.getCells(),
+            Ship.SUBMARINE.getCells(),
+            Ship.CRUISER.getCells(),
+            Ship.DESTROYER.getCells()
+    };
+    public int[] getShipsLength() {
+        return shipsLength;
+    }
+
+    public void setShipsLength(int[] shipsLength) {
+        this.shipsLength = shipsLength;
+    }
     private int index = 0;
     private String[] correctShots = new String[index];
 
@@ -41,7 +55,7 @@ public class Field {
     }
 
     private void printFirstRow() {
-        System.out.print("\n" + "  ");
+        System.out.print("\n  ");
         for (int i : FIRST_ROW) {
             System.out.print(i + " ");
         }
@@ -259,91 +273,48 @@ public class Field {
                     "Error! You entered the wrong coordinates! Try again:");
         }
     }
+    private void updateArray(int k) {
+        String wonMessage = "\nYou sank the last ship. You won. Congratulations!";
+        String sankShipMessage = "\nYou sank a ship!";
+        String hitShipMessage = "\nYou hit a ship! ";
+        int[] shipsLength = getShipsLength();
+        if (shipsLength[k] > 0) {
+            shipsLength[k] -= 1;
+            setShipsLength(shipsLength);
+        }
+        if (allShipsAreSank()){
+            System.out.println(wonMessage);
+            System.exit(0);
+        }
+        if (shipsLength[k] == 0) {
+            System.out.println(sankShipMessage);
+        }
+        if (shipsLength[k] != 0) {
+            System.out.println(hitShipMessage);
+        }
+    }
 
     private void updateShipsLength(String[][] shipsArray, char letter, int number) {
         String coordinate = "" + letter + number;
-
         for (int k = 0; k < shipsArray.length; k++) {
             for (int l = 0; l < shipsArray[k].length; l++) {
                 if (shipsArray[k][l].equals(coordinate)) {
-                    String sankShipMessage = "\n" + "You sank a ship! Specify a new target: ";
-                    String hitShipMessage = "\n" + "You hit a ship! Try again: ";
                     switch (k) {
-                        case 0 -> {
-                            if (aircraftCarrierLength > 0) {
-                                aircraftCarrierLength--;
-                            }
-                            checkIfAllShipsAreSank();
-                            if (aircraftCarrierLength == 0) {
-                                System.out.println(sankShipMessage);
-                            }
-                            if (aircraftCarrierLength != 0) {
-                                System.out.println(hitShipMessage);
-                            }
-                        }
-                        case 1 -> {
-                            if (battleshipLength > 0) {
-                                battleshipLength--;
-                            }
-                            checkIfAllShipsAreSank();
-                            if (battleshipLength == 0) {
-                                System.out.println(sankShipMessage);
-                            }
-                            if (battleshipLength != 0) {
-                                System.out.println(hitShipMessage);
-                            }
-                        }
-                        case 2 -> {
-                            if (submarineLength > 0) {
-                                submarineLength--;
-                            }
-                            checkIfAllShipsAreSank();
-                            if (submarineLength == 0) {
-                                System.out.println(sankShipMessage);
-                            }
-                            if (submarineLength != 0) {
-                                System.out.println(hitShipMessage);
-                            }
-                        }
-                        case 3 -> {
-                            if (cruiserLength > 0) {
-                                cruiserLength--;
-                            }
-                            checkIfAllShipsAreSank();
-                            if (cruiserLength == 0) {
-                                System.out.println(sankShipMessage);
-                            }
-                            if (cruiserLength != 0) {
-                                System.out.println(hitShipMessage);
-                            }
-                        }
-                        case 4 -> {
-                            if (destroyerLength > 0) {
-                                destroyerLength--;
-                            }
-                            checkIfAllShipsAreSank();
-                            if (destroyerLength == 0) {
-                                System.out.println(sankShipMessage);
-                            }
-                            if (destroyerLength != 0) {
-                                System.out.println(hitShipMessage);
-                            }
-                        }
+                        case 0 -> updateArray(0);
+                        case 1 -> updateArray(1);
+                        case 2 -> updateArray(2);
+                        case 3 -> updateArray(3);
+                        case 4 -> updateArray(4);
                     }
                 }
             }
         }
     }
 
-    private void checkIfAllShipsAreSank() {
-        if (aircraftCarrierLength == 0 && battleshipLength == 0 && submarineLength == 0
-                && cruiserLength == 0 && destroyerLength == 0){
-            String wonMessage = "\n" + "You sank the last ship. You won. Congratulations! ";
-            System.out.println(wonMessage);
-            System.exit(0);
-        }
+    private boolean allShipsAreSank() {
+        return shipsLength[0] == 0 && shipsLength[1] == 0 && shipsLength[2] == 0
+                && shipsLength[3] == 0 && shipsLength[4] == 0;
     }
-
 
     public int placeAShot(Field gameField, char letter, int number, String[][] shipsArray) {
         int correctShot = 0;
@@ -355,26 +326,23 @@ public class Field {
         for (int i = 0; i < GAME_FIELD.length; i++) {
             for (int j = 0; j < GAME_FIELD[i].length; j++) {
                 if (i == letterIndex && j == numberIndex) {
-
                     if (gameField.isCellEqual(letterIndex, numberIndex, "X")) {
                         GAME_FIELD[i][j] = "X";
                         print();
                         correctShots = extendArray(correctShots);
-
                         if (!checkDuplicates(correctShots, coordinate)) {
                             correctShot = 1;
                             updateShipsLength(shipsArray, letter, number);
                             correctShots[index] = coordinate;
                             index++;
                         } else {
-                            System.out.println("\n" + "You hit a ship! Try again:");
+                            System.out.println("\nYou hit a ship!");
                         }
                     }
-
                     if (gameField.isCellEqual(letterIndex, numberIndex, "M")) {
                         GAME_FIELD[i][j] = "M";
                         print();
-                        System.out.println("\n" + "You missed! Try again: ");
+                        System.out.println("\nYou missed!");
                     }
                 }
             }
@@ -431,5 +399,4 @@ public class Field {
         }
         return shipArray;
     }
-
 }
